@@ -4,13 +4,21 @@ import { formatTweet, formatDate } from '../utils/helpers'
 import TiArrowBackOutline from 'react-icons/lib/ti/arrow-back-outline'
 import TiHeartOutline from 'react-icons/lib/ti/heart-outline'
 import TiHeartFullOutline from 'react-icons/lib/ti/heart-full-outline'
-
+import { handleToggleTweet } from '../actions/tweets'
+import { Link } from 'react-router-dom'
 
 class Tweet extends Component {
     handleLike = (e) => {
         e.preventDefault()
 
         // todo: Handle Like Tweet
+        const {dispatch, tweet, authedUser } = this.props
+
+        dispatch(handleToggleTweet({
+            id: tweet.id,
+            hasLiked: tweet.hasLiked,
+            authedUser
+        }))
     }
     toParent = (e, id) => {
         e.preventDefault()
@@ -19,14 +27,13 @@ class Tweet extends Component {
 
     render() {
        const { tweet } = this.props
-
        if(tweet === null) {
            return <p>This Tweet doesn't exist</p>
        }
-       console.log(this.props)
+    
        const { name, avatar, timestamp, text, hasLiked, likes, replies, id, parent } = tweet
         return(
-            <div className='tweet'>
+            <Link to={`/tweet/${id}`} className='tweet'>
                 <img 
                     src={avatar}
                     alt={`Avatar of ${name}`}
@@ -55,7 +62,7 @@ class Tweet extends Component {
                         <span>{likes !== 0 && likes}</span>
                     </div>
                 </div>
-            </div>
+            </Link>
         )
     }
 }
@@ -63,7 +70,7 @@ class Tweet extends Component {
 const mapStateToProps = ({authedUser, users, tweets}, { id }) => {
     const tweet = tweets[id]
     const parentTweet = tweet ? tweets[tweet.replyingTo] : null
-    
+    console.log('it is mapStateToProps', users[tweets.author])
     return {
         authedUser,
         tweet: tweet ? formatTweet(tweet, users[tweet.author], authedUser, parentTweet) : null
